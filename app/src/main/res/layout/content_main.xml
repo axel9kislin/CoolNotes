@@ -12,14 +12,11 @@
     tools:context="com.axel.coolnotes.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <view
-        android:id="@+id/recyclerView"
-        class="android.support.v7.widget.RecyclerView"
+
+    <fragment
         android:layout_width="match_parent"
-        android:scrollbars="vertical"
         android:layout_height="match_parent"
-        android:paddingLeft="16dp"
-        android:paddingTop="16dp"
-        android:paddingRight="16dp"
+        android:name="layout.NotesListFragment"
+        android:id="@+id/recyclerViewFragment"
         />
 </RelativeLayout>
