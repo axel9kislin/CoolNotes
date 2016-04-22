@@ -8,26 +8,21 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.axel.coolnotes.MainActivity;
+import com.axel.coolnotes.NotesRecyclerAdapter;
 import com.axel.coolnotes.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link NotesListFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link NotesListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class NotesListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private Cursor mCursor;
+    public NotesRecyclerAdapter mAdapter;
 
-    // TODO: Rename and change types of parameters
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +41,15 @@ public class NotesListFragment extends Fragment {
         //что сюда добавить:
         //вместо try - getAllNotes
         // mCursos = getAllNotes();
-        //создать адаптер, листенер для клика на элементе (в котором открытие новой активити и экстра параметр, передающий id выбранной записи для подробного отображения
+        mAdapter = new NotesRecyclerAdapter(getContext(),mCursor);
+        mAdapter.SetOnItemClickListener(new NotesRecyclerAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d(MainActivity.LOG_TAG,"OnItemClickListener, click on "+position);
+                //дописать логику, открыть активность с экстра параметром Id.
+            }
+        });
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     @Override
@@ -66,6 +69,7 @@ public class NotesListFragment extends Fragment {
         super.onDestroy();
 
         mRecyclerView = null;
+        mAdapter = null;
         //так же добавить все остальные элементы и занулить их
     }
 
