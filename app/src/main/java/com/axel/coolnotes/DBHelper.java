@@ -20,9 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COL_DESC = "DESCRIPTION";
     private static final String COL_IMG = "IMAGE_RESOURCE_ID";
 
-
     private static DBHelper sInstance;
-
     public static DBHelper getInstance(Context context) {
         if (sInstance == null)
         {
@@ -40,9 +38,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "NAME TEXT, " +
                 "DESCRIPTION TEXT, " +
                 "IMAGE_RESOURCE_ID TEXT);");
-        insertNote(db, "Тестим лист на анимацию ", "Тест вставки русского шрифта", "тратата");
-        insertNote(db, "Тестовая запись 2 ", "Описание для заметки", "какой-то ресурс");
-        insertNote(db, "3-я запись, тесты", "Работает :)", "ресурс");
+        insertNote(db, "Добро пожаловать в приложение заметки", "Это приложение позволит вам сохранить информацию о чём угодно", "тратата");
+        insertNote(db, "Вы можете сохранять как текст, так и фото", "Для сохранения изображения из галлереи выберите соответствующий пункт меню", "какой-то ресурс");
     }
 
     @Override
@@ -69,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static void insertNote(Context context, String title, String desc, String resource)
     {
-        DBHelper helper = new DBHelper(context);
+        DBHelper helper = DBHelper.getInstance(context);
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COL_NAME, title);
@@ -85,9 +82,9 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public Cursor getAllNotes(Context context)
+    public static Cursor getAllNotes(Context context)
     {
-        DBHelper helper = new DBHelper(context);
+        DBHelper helper = DBHelper.getInstance(context);
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = null;
         try {
@@ -95,25 +92,29 @@ public class DBHelper extends SQLiteOpenHelper {
                     new String[]{"_id", COL_NAME, COL_DESC, COL_IMG},
                     null,
                     null, null, null, null);
+            Log.d(MainActivity.LOG_TAG,"we in query, and have in cursor is "+cursor.getCount());
         }
         catch (SQLiteException e) {
-            Log.d(MainActivity.LOG_TAG,e.getMessage());
+            Log.d(MainActivity.LOG_TAG,"problem with getAllNotes: "+e.getMessage());
         }
         db.close();
         return cursor;
     }
 
-    public Cursor getNoteByID(Context context, int id)
+    public static Cursor getNoteByID(Context context, String id)
     {
-        DBHelper helper = new DBHelper(context);
+        Log.d(MainActivity.LOG_TAG,"we in getNoteByID");
+        DBHelper helper = DBHelper.getInstance(context);
+        Log.d(MainActivity.LOG_TAG,"we create our helper");
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = null;
         try {
             cursor = db.query(TABLE_NAME,
                     new String[]{"_id", COL_NAME, COL_DESC, COL_IMG},
                     "_id = ?",
-                    new String[] {String.valueOf(id)},
+                    new String[] {id},
                     null, null, null);
+            Log.d(MainActivity.LOG_TAG,"we in query, and have in cursor is "+cursor.getCount());
         }
         catch (SQLiteException e) {
             Log.d(MainActivity.LOG_TAG,e.getMessage());
@@ -122,12 +123,12 @@ public class DBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public void deleteNote(Context context, int id)
+    public static void deleteNote(Context context, String id)
     {
-        DBHelper helper = new DBHelper(context);
+        DBHelper helper = DBHelper.getInstance(context);
         SQLiteDatabase db = helper.getWritableDatabase();
         try {
-            db.delete("NOTES", "_id=" +String.valueOf(id), null);
+            db.delete(TABLE_NAME, "_id=" +id, null);
         }
         catch (SQLiteException e)
         {
@@ -135,5 +136,4 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         db.close();
     }
-
 }

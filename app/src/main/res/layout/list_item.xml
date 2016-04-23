@@ -5,11 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
+    android:background="@drawable/borber"
     >
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/textViewInItem"
         android:textSize="22dp"
+        android:textColor="#222"
+        android:layout_margin="10dp"
+        android:padding="8dp"
         />
 </LinearLayout>

@@ -1,8 +1,7 @@
-package layout;
+package com.axel.coolnotes;
 
-import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,15 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.axel.coolnotes.MainActivity;
-import com.axel.coolnotes.NotesRecyclerAdapter;
-import com.axel.coolnotes.R;
 
 public class NotesListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private Cursor mCursor;
-    public NotesRecyclerAdapter mAdapter;
+    private NotesRecyclerAdapter mAdapter;
 
 
     @Override
@@ -38,30 +34,21 @@ public class NotesListFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        //что сюда добавить:
-        //вместо try - getAllNotes
-        // mCursos = getAllNotes();
+        //DBHelper helper = DBHelper.getInstance(getContext());
+        mCursor = DBHelper.getAllNotes(getContext());
         mAdapter = new NotesRecyclerAdapter(getContext(),mCursor);
         mAdapter.SetOnItemClickListener(new NotesRecyclerAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Log.d(MainActivity.LOG_TAG,"OnItemClickListener, click on "+position);
-                //дописать логику, открыть активность с экстра параметром Id.
+                Log.d(MainActivity.LOG_TAG, "OnItemClickListener, click on " + position);
+                Intent intent = new Intent(getContext(),DetailNote.class);
+                mCursor.moveToPosition(position);
+                intent.putExtra(DetailNote.EXTRA_ID, mCursor.getString(0));
+                Log.d(MainActivity.LOG_TAG, "in extra data we have: " + intent.getStringExtra(DetailNote.EXTRA_ID)); //после удаления потестить
+                startActivity(intent);
             }
         });
         mRecyclerView.setAdapter(mAdapter);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-        //пока не знаю, нужно ли это мне, потом удалить или реализовать нормально
     }
 
     @Override
@@ -70,6 +57,7 @@ public class NotesListFragment extends Fragment {
 
         mRecyclerView = null;
         mAdapter = null;
+        mCursor = null;
         //так же добавить все остальные элементы и занулить их
     }
 

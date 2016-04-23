@@ -30,7 +30,7 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
     @Override
     public void onBindViewHolder(NotesRecyclerAdapter.ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
-        TextView text = (TextView)holder.v1.findViewById(R.id.textViewInItem);
+        TextView text = (TextView)holder.itemView.findViewById(R.id.textViewInItem);
         text.setText(mCursor.getString(1));
     }
 
@@ -44,6 +44,7 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
         View v1;
         public ViewHolder(View itemView) {
             super(itemView);
+
             v1 = itemView.findViewById(R.id.allItemViewID);
             itemView.setOnClickListener(this);
         }
