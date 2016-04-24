@@ -29,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return sInstance;
     }
     private DBHelper(Context context) {
-        super(context,DB_NAME,null,DB_VERSION);
+        super(context, DB_NAME, null, DB_VERSION);
     }
 
     @Override
@@ -38,8 +38,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "NAME TEXT, " +
                 "DESCRIPTION TEXT, " +
                 "IMAGE_RESOURCE_ID TEXT);");
-        insertNote(db, "Добро пожаловать в приложение заметки", "Это приложение позволит вам сохранить информацию о чём угодно", "тратата");
-        insertNote(db, "Вы можете сохранять как текст, так и фото", "Для сохранения изображения из галлереи выберите соответствующий пункт меню", "какой-то ресурс");
+        insertNote(db, "Добро пожаловать в приложение заметки", "Это приложение позволит вам сохранить информацию о чём угодно", "placeholder");
+        insertNote(db, "Вы можете сохранять как текст, так и фото", "Для сохранения изображения из галлереи нажмите на изображение рядом с заметкой", "placeholder");
     }
 
     @Override
@@ -103,9 +103,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static Cursor getNoteByID(Context context, String id)
     {
-        Log.d(MainActivity.LOG_TAG,"we in getNoteByID");
+        Log.d(MainActivity.LOG_TAG, "we in getNoteByID");
         DBHelper helper = DBHelper.getInstance(context);
-        Log.d(MainActivity.LOG_TAG,"we create our helper");
+        Log.d(MainActivity.LOG_TAG, "we create our helper");
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = null;
         try {
@@ -121,6 +121,26 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         db.close();
         return cursor;
+    }
+
+    public static void updateNoteByID(Context context, String id, String newTitle, String newDesc, String newImage)
+    {
+        int updCount=0;
+        DBHelper helper = DBHelper.getInstance(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COL_NAME, newTitle);
+        cv.put(COL_DESC, newDesc);
+        cv.put(COL_IMG, newImage);
+        try {
+                updCount = db.update(TABLE_NAME, cv, "_id = ?",
+                    new String[]{id});
+        }catch (SQLiteException e)
+        {
+            Log.d(MainActivity.LOG_TAG,e.getMessage());
+        }
+        db.close();
+        Log.d("MyLogs", "updated rows count = " + updCount);
     }
 
     public static void deleteNote(Context context, String id)

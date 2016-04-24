@@ -19,7 +19,9 @@
             android:layout_height="100dp"
             android:layout_alignParentLeft="true"
             android:scaleType="centerCrop"
-            android:src="@drawable/placeholder" />
+            android:src="@drawable/placeholder"
+            android:onClick="onImageViewClick"
+            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
