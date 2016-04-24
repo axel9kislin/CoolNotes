@@ -1,6 +1,7 @@
 package com.axel.coolnotes;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -20,45 +22,72 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class AddNote extends AppCompatActivity {
+public class EditNote extends AppCompatActivity {
 
-    private EditText mTitle;
-    private EditText mDesc;
-    private ImageView mImage;
+    public static final int REQUEST = 1;
+    private String mId,newTitle,newDesc,newRes;
+    private EditText mTitleEdit;
+    private EditText mDescEdit;
+    private ImageView mImgEdit;
     private String mSavePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_note);
 
-        setContentView(R.layout.activity_add_note);
+        mTitleEdit = (EditText)findViewById(R.id.userTitle_changed);
+        mDescEdit = (EditText)findViewById(R.id.userDesc_changed);
+        mImgEdit = (ImageView)findViewById(R.id.image_change);
 
-        mTitle = (EditText)findViewById(R.id.userTitle_Add);
-        mDesc = (EditText)findViewById(R.id.userDesc_Add);
-        mImage = (ImageView)findViewById(R.id.image_add);
+        mSavePath = this.getCacheDir().toString();
 
+        Intent intent = getIntent();
+        mId = intent.getStringExtra(DetailNote.EXTRA_ID);
+        Cursor cursor = DBHelper.getNoteByID(this, mId);
+        cursor.moveToFirst();
+
+        assert mTitleEdit != null;
+        mTitleEdit.setText(cursor.getString(1));
+        assert mDescEdit != null;
+        mDescEdit.setText(cursor.getString(2));
+
+        if (cursor.getString(3)!=DetailNote.PLACEHOLDER)
+        {
+            try {
+                mImgEdit.setImageURI(Uri.parse(cursor.getString(3)));
+            }
+            catch (Exception e)
+            {
+                mImgEdit.setImageResource(R.drawable.placeholder);
+                Toast.makeText(this,"Problem with loading image for it note, maybe it was deleted or moved", Toast.LENGTH_LONG).show();
+            }
+        }
+        else
+        {
+            mImgEdit.setImageResource(R.drawable.placeholder);
+        }
     }
 
-    public void onAddNote(View v)
-    {
-        String newPath = savePicture(mImage,mSavePath);
-        DBHelper.insertNote(this,mTitle.getText().toString(),mDesc.getText().toString(),newPath);
-        //добавить EventBus объявление что данные обновились
-        finish();
-    }
-
-    public void onImageViewAddClick(View v)
-    {
+    public void onImageViewClick(View view) {
         Log.d(MainActivity.LOG_TAG, "we in onImageViewClick");
         Intent i = new Intent(Intent.ACTION_PICK);
         i.setType("image/*");
-        startActivityForResult(i, EditNote.REQUEST);
+        startActivityForResult(i, REQUEST);
+    }
+
+    public void onSaveChanges(View v)
+    {
+        String newPath = savePicture(mImgEdit,mSavePath);
+        DBHelper.updateNoteByID(this,mId,mTitleEdit.getText().toString(),mDescEdit.getText().toString(),newPath);
+        Log.d(MainActivity.LOG_TAG,"we save in "+newPath+" photo");
+        finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Bitmap img = null;
-        if (requestCode == EditNote.REQUEST && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST && resultCode == RESULT_OK) {
             Uri selectedImage = data.getData();
             try {
                 img = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
@@ -67,7 +96,7 @@ public class AddNote extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mImage.setImageBitmap(img);
+            mImgEdit.setImageBitmap(img);
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

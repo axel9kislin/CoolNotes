@@ -27,11 +27,8 @@ import java.util.Date;
 public class DetailNote extends AppCompatActivity {
 
     public static final String EXTRA_ID = "EXTRA_ID";
-    public static final int REQUEST = 1;
+    public static final String PLACEHOLDER = "placeholder";
     public String id;
-    private ImageView mImage;
-    private String mSavePath;
-    private static final String PLACEHOLDER = "placeholder";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,25 +38,19 @@ public class DetailNote extends AppCompatActivity {
 
         TextView title = (TextView) findViewById(R.id.title_detail);
         TextView desc = (TextView) findViewById(R.id.desc_detail);
-        mImage = (ImageView) findViewById(R.id.image_detail);
-
-        mSavePath = this.getCacheDir().toString();
+        ImageView mImage = (ImageView)findViewById(R.id.image_detail);
 
         Intent intent = getIntent();
         id = intent.getStringExtra(EXTRA_ID);
-        Log.d(MainActivity.LOG_TAG,"we receive extra "+id);
         Cursor cursor = DBHelper.getNoteByID(this, id);
         cursor.moveToFirst();
 
-        assert title != null;
         title.setText(cursor.getString(1));
-        assert desc != null;
         desc.setText(cursor.getString(2));
-        if (cursor.getString(3)==PLACEHOLDER)
-        {
-            mImage.setImageResource(R.drawable.placeholder);
-        }
-        else
+
+        Log.d(MainActivity.LOG_TAG,"we have in Cursor(3) "+cursor.getString(3));
+
+        if (cursor.getString(3)!=PLACEHOLDER)
         {
             try {
                 mImage.setImageURI(Uri.parse(cursor.getString(3)));
@@ -67,14 +58,20 @@ public class DetailNote extends AppCompatActivity {
             catch (Exception e)
             {
                 mImage.setImageResource(R.drawable.placeholder);
-                Toast.makeText(this,"Problem with load it image, maybe it was deleted or moved",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Problem with loading image for it note, maybe it was deleted or moved", Toast.LENGTH_LONG).show();
             }
+        }
+        else
+        {
+            mImage.setImageResource(R.drawable.placeholder);
         }
     }
 
     public void btn_editClick(View v)
     {
-        Log.d(MainActivity.LOG_TAG, "we in edit button handler");
+        Intent intent = new Intent(this, EditNote.class);
+        intent.putExtra(DetailNote.EXTRA_ID, id);
+        startActivity(intent);
         //оповещение от EventBus о том поменяли
     }
 
@@ -86,62 +83,8 @@ public class DetailNote extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Bitmap img = null;
-        if (requestCode == REQUEST && resultCode == RESULT_OK) {
-            Uri selectedImage = data.getData();
-            try {
-                img = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mImage.setImageBitmap(img);
-            String test = savePicture(mImage,mSavePath);
-            Log.d(MainActivity.LOG_TAG,"we have in test: "+test);
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    public void onImageViewClick(View view) {
-        Log.d(MainActivity.LOG_TAG,"we in onImageViewClick");
-        Intent i = new Intent(Intent.ACTION_PICK);
-        i.setType("image/*");
-        startActivityForResult(i, REQUEST);
-    }
-
-    private String savePicture(ImageView iv, String folderToSave)
-    {
-        OutputStream fOut = null;
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        String newPath = null;
-        try {
-            File file = new File(folderToSave, imageFileName +".jpg");
-            fOut = new FileOutputStream(file);
-
-            iv.buildDrawingCache();
-            Bitmap bitmap = iv.getDrawingCache();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-            fOut.flush();
-            fOut.close();
-            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
-            newPath = file.getAbsolutePath();
-        }
-        catch (Exception e)
-        {
-            Toast.makeText(this,"Some problem "+e.getMessage(),Toast.LENGTH_LONG).show();
-            return e.getMessage();
-        }
-        return newPath;
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
 
-
-        mImage = null;
     }
 }
