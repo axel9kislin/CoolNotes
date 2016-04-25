@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import java.io.File;
@@ -26,6 +28,9 @@ public class AddNote extends AppCompatActivity {
     private EditText mDesc;
     private ImageView mImage;
     private String mSavePath;
+    private RelativeLayout mLayout;
+
+    private boolean mUseDefaultImage = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,18 +38,27 @@ public class AddNote extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_note);
 
+        mSavePath = this.getCacheDir().toString();
+
         mTitle = (EditText)findViewById(R.id.userTitle_Add);
         mDesc = (EditText)findViewById(R.id.userDesc_Add);
         mImage = (ImageView)findViewById(R.id.image_add);
-
+        mLayout = (RelativeLayout)findViewById(R.id.relativeLayout);
     }
 
     public void onAddNote(View v)
     {
-        String newPath = savePicture(mImage,mSavePath);
-        DBHelper.insertNote(this,mTitle.getText().toString(),mDesc.getText().toString(),newPath);
-        //добавить EventBus объявление что данные обновились
-        finish();
+        if (validateData()) {
+            if (mUseDefaultImage == false)
+            {
+                String newPath = savePicture(mImage, mSavePath);
+                DBHelper.insertNote(this, mTitle.getText().toString(), mDesc.getText().toString(), newPath);
+            } else {
+                DBHelper.insertNote(this, mTitle.getText().toString(), mDesc.getText().toString(), DetailNote.PLACEHOLDER);
+            }
+            //добавить EventBus объявление что данные обновились
+            finish();
+        }
     }
 
     public void onImageViewAddClick(View v)
@@ -68,6 +82,7 @@ public class AddNote extends AppCompatActivity {
                 e.printStackTrace();
             }
             mImage.setImageBitmap(img);
+            mUseDefaultImage = false;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -92,9 +107,30 @@ public class AddNote extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            Toast.makeText(this, "Some problem " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "recording problems in the internal memory, perhaps not enough space", Toast.LENGTH_LONG).show();
             return e.getMessage();
         }
         return newPath;
+    }
+    public boolean validateData()
+    {
+        if (mTitle.getText().length()==0)
+        {
+            Snackbar snackbar = Snackbar
+                    .make(mLayout, "Please, add the title", Snackbar.LENGTH_LONG);
+            snackbar.show();
+            return false;
+        }else  {return true;}
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mLayout=null;
+        mTitle=null;
+        mImage=null;
+        mDesc=null;
+        mSavePath=null;//не знаю, надо ли строковые занулять
     }
 }

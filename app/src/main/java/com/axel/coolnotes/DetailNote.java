@@ -7,12 +7,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,8 @@ public class DetailNote extends AppCompatActivity {
     public static final String PLACEHOLDER = "placeholder";
     public String id;
 
+    private RelativeLayout mLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +43,7 @@ public class DetailNote extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.title_detail);
         TextView desc = (TextView) findViewById(R.id.desc_detail);
         ImageView mImage = (ImageView)findViewById(R.id.image_detail);
+        mLayout = (RelativeLayout)findViewById(R.id.relative_DetailActivity);
 
         Intent intent = getIntent();
         id = intent.getStringExtra(EXTRA_ID);
@@ -48,9 +53,7 @@ public class DetailNote extends AppCompatActivity {
         title.setText(cursor.getString(1));
         desc.setText(cursor.getString(2));
 
-        Log.d(MainActivity.LOG_TAG,"we have in Cursor(3) "+cursor.getString(3));
-
-        if (cursor.getString(3)!=PLACEHOLDER)
+        if (!cursor.getString(3).equals(PLACEHOLDER))
         {
             try {
                 mImage.setImageURI(Uri.parse(cursor.getString(3)));
@@ -58,13 +61,12 @@ public class DetailNote extends AppCompatActivity {
             catch (Exception e)
             {
                 mImage.setImageResource(R.drawable.placeholder);
-                Toast.makeText(this,"Problem with loading image for it note, maybe it was deleted or moved", Toast.LENGTH_LONG).show();
+                Snackbar snackbar = Snackbar
+                        .make(mLayout, "Problem with loading image for it note, maybe it was deleted or moved", Snackbar.LENGTH_LONG);
+                snackbar.show();
             }
         }
-        else
-        {
-            mImage.setImageResource(R.drawable.placeholder);
-        }
+        else mImage.setImageResource(R.drawable.placeholder);
     }
 
     public void btn_editClick(View v)
@@ -72,7 +74,6 @@ public class DetailNote extends AppCompatActivity {
         Intent intent = new Intent(this, EditNote.class);
         intent.putExtra(DetailNote.EXTRA_ID, id);
         startActivity(intent);
-        //оповещение от EventBus о том поменяли
     }
 
     public void btn_deleteClick(View v)
@@ -85,6 +86,6 @@ public class DetailNote extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        mLayout = null;
     }
 }

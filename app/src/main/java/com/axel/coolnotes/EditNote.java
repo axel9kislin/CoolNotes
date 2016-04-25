@@ -5,12 +5,14 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,11 +27,14 @@ import java.util.Date;
 public class EditNote extends AppCompatActivity {
 
     public static final int REQUEST = 1;
-    private String mId,newTitle,newDesc,newRes;
+    private String mId;
     private EditText mTitleEdit;
     private EditText mDescEdit;
     private ImageView mImgEdit;
     private String mSavePath;
+    private RelativeLayout mLayout;
+
+    private boolean mUseDefaultImage = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,7 @@ public class EditNote extends AppCompatActivity {
         mTitleEdit = (EditText)findViewById(R.id.userTitle_changed);
         mDescEdit = (EditText)findViewById(R.id.userDesc_changed);
         mImgEdit = (ImageView)findViewById(R.id.image_change);
+        mLayout = (RelativeLayout)findViewById(R.id.relative_editActivity);
 
         mSavePath = this.getCacheDir().toString();
 
@@ -52,7 +58,7 @@ public class EditNote extends AppCompatActivity {
         assert mDescEdit != null;
         mDescEdit.setText(cursor.getString(2));
 
-        if (cursor.getString(3)!=DetailNote.PLACEHOLDER)
+        if (!cursor.getString(3).equals(DetailNote.PLACEHOLDER))
         {
             try {
                 mImgEdit.setImageURI(Uri.parse(cursor.getString(3)));
@@ -60,13 +66,12 @@ public class EditNote extends AppCompatActivity {
             catch (Exception e)
             {
                 mImgEdit.setImageResource(R.drawable.placeholder);
-                Toast.makeText(this,"Problem with loading image for it note, maybe it was deleted or moved", Toast.LENGTH_LONG).show();
+                Snackbar snackbar = Snackbar
+                        .make(mLayout, "Problem with loading image for it note, maybe it was deleted or moved", Snackbar.LENGTH_LONG);
+                snackbar.show();
             }
         }
-        else
-        {
-            mImgEdit.setImageResource(R.drawable.placeholder);
-        }
+        else mImgEdit.setImageResource(R.drawable.placeholder);
     }
 
     public void onImageViewClick(View view) {
@@ -78,10 +83,17 @@ public class EditNote extends AppCompatActivity {
 
     public void onSaveChanges(View v)
     {
-        String newPath = savePicture(mImgEdit,mSavePath);
-        DBHelper.updateNoteByID(this,mId,mTitleEdit.getText().toString(),mDescEdit.getText().toString(),newPath);
-        Log.d(MainActivity.LOG_TAG,"we save in "+newPath+" photo");
-        finish();
+        if (validateData()) {
+            if (mUseDefaultImage==false) {
+                String newPath = savePicture(mImgEdit, mSavePath);
+                DBHelper.updateNoteByID(this, mId, mTitleEdit.getText().toString(), mDescEdit.getText().toString(), newPath);
+            }
+            else
+            {
+                DBHelper.updateNoteByID(this, mId, mTitleEdit.getText().toString(), mDescEdit.getText().toString(), DetailNote.PLACEHOLDER);
+            }
+            finish();
+        }
     }
 
     @Override
@@ -97,6 +109,7 @@ public class EditNote extends AppCompatActivity {
                 e.printStackTrace();
             }
             mImgEdit.setImageBitmap(img);
+            mUseDefaultImage = false;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -125,5 +138,15 @@ public class EditNote extends AppCompatActivity {
             return e.getMessage();
         }
         return newPath;
+    }
+    public boolean validateData()
+    {
+        if (mTitleEdit.getText().length()==0)
+        {
+            Snackbar snackbar = Snackbar
+                    .make(mLayout, "Title cant be empty", Snackbar.LENGTH_LONG);
+            snackbar.show();
+            return false;
+        }else  {return true;}
     }
 }

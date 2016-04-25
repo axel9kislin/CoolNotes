@@ -38,8 +38,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 "NAME TEXT, " +
                 "DESCRIPTION TEXT, " +
                 "IMAGE_RESOURCE_ID TEXT);");
-        insertNote(db, "Добро пожаловать в приложение заметки", "Это приложение позволит вам сохранить информацию о чём угодно", "placeholder");
-        insertNote(db, "Вы можете сохранять как текст, так и фото", "Для сохранения изображения из галлереи нажмите на изображение рядом с заметкой", "placeholder");
+        insertNote(db, "Добро пожаловать в приложение заметки", "Это приложение позволит вам сохранить информацию о чём угодно", DetailNote.PLACEHOLDER);
+        insertNote(db, "Вы можете сохранять как текст, так и фото", "Для сохранения изображения из галлереи нажмите на изображение рядом с заметкой", DetailNote.PLACEHOLDER);
     }
 
     @Override
