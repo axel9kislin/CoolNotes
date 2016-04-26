@@ -4,16 +4,32 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    android:background="@drawable/borber"
     >
-    <TextView
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textViewInItem"
-        android:textSize="22dp"
-        android:textColor="#222"
-        android:layout_margin="10dp"
-        android:padding="8dp"
-        />
+        card_view:cardCornerRadius="6dp"
+        card_view:theme="@style/AppTheme">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:id="@+id/imageViewInItem"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewInItem"
+            android:textSize="22dp"
+            android:textColor="#222"
+            android:layout_margin="10dp"
+            android:padding="8dp"
+            android:layout_toRightOf="@id/imageViewInItem"
+            />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 </LinearLayout>

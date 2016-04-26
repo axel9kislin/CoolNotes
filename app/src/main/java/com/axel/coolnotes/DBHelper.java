@@ -143,8 +143,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static void deleteNote(Context context, String id)
     {
-        DBHelper helper = DBHelper.getInstance(context);
-        SQLiteDatabase db = helper.getWritableDatabase();
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
         try {
             db.delete(TABLE_NAME, "_id=" +id, null);
         }
@@ -153,5 +152,17 @@ public class DBHelper extends SQLiteOpenHelper {
             Log.d(MainActivity.LOG_TAG,e.getMessage());
         }
         db.close();
+    }
+    public static void deleteAll(Context context)
+    {
+        SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+        try
+        {
+            db.delete(TABLE_NAME, null, null);
+        }
+        catch (SQLiteException e)
+        {
+            Log.d(MainActivity.LOG_TAG,e.getMessage());
+        }
     }
 }

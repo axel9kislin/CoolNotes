@@ -10,4 +10,8 @@
     <string name="btn_edit">Edit</string>
     <string name="btn_delete">Delete</string>
     <string name="str_save">Save</string>
+    <string name="str_clearAll">Clear all</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="AreYouSure">Are you sure you want to delete all notes?</string>
 </resources>

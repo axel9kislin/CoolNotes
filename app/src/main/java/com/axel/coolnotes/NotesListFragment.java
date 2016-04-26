@@ -18,6 +18,11 @@ import org.greenrobot.eventbus.Subscribe;
 
 public class NotesListFragment extends Fragment {
 
+    public static final String ADD_TAG = "addNote";
+    public static final String EDIT_TAG = "editNote";
+    public static final String DELETE_TAG = "deleteNote";
+    public static final String DELETE_ALL_TAG = "deleteAll";
+
     private RecyclerView mRecyclerView;
     private Cursor mCursor;
     private NotesRecyclerAdapter mAdapter;
@@ -57,27 +62,30 @@ public class NotesListFragment extends Fragment {
     public void OnEvent(UpdateData event)
     {
         String recievedData = event.getData();
-        Log.d(MainActivity.LOG_TAG,"we received from AddNote is:"+recievedData);
-        switch (recievedData) {
-            case "addNote":
+        switch (recievedData) { //на данный момент реализация этих кейсов одинаковая, но будет изменена в будущем, когда пойму как достать позицию, зная id
+            case ADD_TAG:
             {
                 mCursor = DBHelper.getAllNotes(getContext());
                 mAdapter.refreshData(mCursor);
                 mAdapter.notifyItemInserted(mCursor.getCount());
             }
-            case "deleteNote":
+            case DELETE_TAG:
             {
                 mCursor = DBHelper.getAllNotes(getContext());
                 mAdapter.refreshData(mCursor);
                 mAdapter.notifyDataSetChanged();
-                //mAdapter.notifyItemRemoved(); что сюда передать пока хз
             }
-            case "editNote" :
+            case EDIT_TAG :
             {
                 mCursor = DBHelper.getAllNotes(getContext());
                 mAdapter.refreshData(mCursor);
                 mAdapter.notifyDataSetChanged();
-                //mAdapter.notifyItemChanged(); тоже самое, хз что передать
+            }
+            case DELETE_ALL_TAG :
+            {
+                mCursor = DBHelper.getAllNotes(getContext());
+                mAdapter.refreshData(mCursor);
+                mAdapter.notifyDataSetChanged();
             }
         }
     }

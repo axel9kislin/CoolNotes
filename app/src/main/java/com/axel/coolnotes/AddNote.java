@@ -58,7 +58,7 @@ public class AddNote extends AppCompatActivity {
             } else {
                 DBHelper.insertNote(this, mTitle.getText().toString(), mDesc.getText().toString(), DetailNote.PLACEHOLDER);
             }
-            UpdateData upd = new UpdateData("addNote");
+            UpdateData upd = new UpdateData(NotesListFragment.ADD_TAG);
             EventBus.getDefault().post(upd);
             finish();
         }
@@ -110,7 +110,9 @@ public class AddNote extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            Toast.makeText(this, "recording problems in the internal memory, perhaps not enough space", Toast.LENGTH_LONG).show();
+            Snackbar snackbar = Snackbar
+                    .make(mLayout, "Not enough space in the internal memory", Snackbar.LENGTH_LONG);
+            snackbar.show();
             return e.getMessage();
         }
         return newPath;
@@ -128,12 +130,11 @@ public class AddNote extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         mLayout=null;
         mTitle=null;
         mImage=null;
         mDesc=null;
         mSavePath=null;//не знаю, надо ли строковые занулять
+        super.onDestroy();
     }
 }

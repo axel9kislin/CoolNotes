@@ -93,7 +93,7 @@ public class EditNote extends AppCompatActivity {
             {
                 DBHelper.updateNoteByID(this, mId, mTitleEdit.getText().toString(), mDescEdit.getText().toString(), DetailNote.PLACEHOLDER);
             }
-            UpdateData upd = new UpdateData("editNote");
+            UpdateData upd = new UpdateData(NotesListFragment.EDIT_TAG);
             EventBus.getDefault().post(upd);
             finish();
         }

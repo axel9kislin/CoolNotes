@@ -80,7 +80,7 @@ public class DetailNote extends AppCompatActivity {
     public void OnEvent(UpdateData event)
     {
         String data = event.getData();
-        if (data.equals("editNote"))
+        if (data.equals(NotesListFragment.EDIT_TAG))
         {
             Cursor cursor = DBHelper.getNoteByID(this, id);
             cursor.moveToFirst();
@@ -114,9 +114,8 @@ public class DetailNote extends AppCompatActivity {
     {
         DBHelper.deleteNote(this, id);
         finish();
-        UpdateData upd = new UpdateData("deleteNote");
+        UpdateData upd = new UpdateData(NotesListFragment.DELETE_TAG);
         EventBus.getDefault().post(upd);
-        //оповещение что элемент удалили
     }
 
     @Override

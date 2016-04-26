@@ -2,10 +2,13 @@ package com.axel.coolnotes;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -31,7 +34,19 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
     public void onBindViewHolder(NotesRecyclerAdapter.ViewHolder holder, int position) {
         mCursor.moveToPosition(position);
         TextView text = (TextView)holder.itemView.findViewById(R.id.textViewInItem);
+        ImageView image = (ImageView)holder.itemView.findViewById(R.id.imageViewInItem);
         text.setText(mCursor.getString(1));
+        if (!mCursor.getString(3).equals(DetailNote.PLACEHOLDER))
+        {
+            try {
+                image.setImageURI(Uri.parse(mCursor.getString(3)));
+            }
+            catch (Exception e)
+            {
+                image.setImageResource(R.drawable.placeholder);
+            }
+        }
+        else image.setImageResource(R.drawable.placeholder);
     }
 
     @Override
