@@ -1,10 +1,14 @@
 package com.axel.coolnotes;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,10 +70,19 @@ public class AddNote extends AppCompatActivity {
 
     public void onImageViewAddClick(View v)
     {
+        int tmp=0;
         Log.d(MainActivity.LOG_TAG, "we in onImageViewClick");
-        Intent i = new Intent(Intent.ACTION_PICK);
-        i.setType("image/*");
-        startActivityForResult(i, EditNote.REQUEST);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_DENIED)
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    tmp);
+        else
+        {
+            Intent i = new Intent(Intent.ACTION_PICK);
+            i.setType("image/*");
+            startActivityForResult(i, EditNote.REQUEST);
+        }
     }
 
     @Override
