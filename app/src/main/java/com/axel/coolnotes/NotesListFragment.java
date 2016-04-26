@@ -12,13 +12,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 
 public class NotesListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private Cursor mCursor;
     private NotesRecyclerAdapter mAdapter;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,7 +36,6 @@ public class NotesListFragment extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        //DBHelper helper = DBHelper.getInstance(getContext());
         mCursor = DBHelper.getAllNotes(getContext());
         mAdapter = new NotesRecyclerAdapter(getContext(),mCursor);
         mAdapter.SetOnItemClickListener(new NotesRecyclerAdapter.OnItemClickListener() {
@@ -44,21 +45,52 @@ public class NotesListFragment extends Fragment {
                 Intent intent = new Intent(getContext(),DetailNote.class);
                 mCursor.moveToPosition(position);
                 intent.putExtra(DetailNote.EXTRA_ID, mCursor.getString(0));
-                Log.d(MainActivity.LOG_TAG, "in extra data we have: " + intent.getStringExtra(DetailNote.EXTRA_ID)); //после удаления потестить
+                Log.d(MainActivity.LOG_TAG, "in extra data we have: " + intent.getStringExtra(DetailNote.EXTRA_ID));
                 startActivity(intent);
             }
         });
         mRecyclerView.setAdapter(mAdapter);
+
+        EventBus.getDefault().register(this);
+    }
+    @Subscribe
+    public void OnEvent(UpdateData event)
+    {
+        String recievedData = event.getData();
+        Log.d(MainActivity.LOG_TAG,"we received from AddNote is:"+recievedData);
+        switch (recievedData) {
+            case "addNote":
+            {
+                mCursor = DBHelper.getAllNotes(getContext());
+                mAdapter.refreshData(mCursor);
+                mAdapter.notifyItemInserted(mCursor.getCount());
+            }
+            case "deleteNote":
+            {
+                mCursor = DBHelper.getAllNotes(getContext());
+                mAdapter.refreshData(mCursor);
+                mAdapter.notifyDataSetChanged();
+                //mAdapter.notifyItemRemoved(); что сюда передать пока хз
+            }
+            case "editNote" :
+            {
+                mCursor = DBHelper.getAllNotes(getContext());
+                mAdapter.refreshData(mCursor);
+                mAdapter.notifyDataSetChanged();
+                //mAdapter.notifyItemChanged(); тоже самое, хз что передать
+            }
+        }
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        EventBus.getDefault().unregister(this);
 
         mRecyclerView = null;
         mAdapter = null;
         mCursor = null;
-        //так же добавить все остальные элементы и занулить их
+
+        super.onDestroy();
     }
 
 }

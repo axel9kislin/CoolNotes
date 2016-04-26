@@ -103,9 +103,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static Cursor getNoteByID(Context context, String id)
     {
-        Log.d(MainActivity.LOG_TAG, "we in getNoteByID");
         DBHelper helper = DBHelper.getInstance(context);
-        Log.d(MainActivity.LOG_TAG, "we create our helper");
         SQLiteDatabase db = helper.getReadableDatabase();
         Cursor cursor = null;
         try {

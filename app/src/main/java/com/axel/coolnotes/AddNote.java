@@ -14,6 +14,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -56,7 +58,8 @@ public class AddNote extends AppCompatActivity {
             } else {
                 DBHelper.insertNote(this, mTitle.getText().toString(), mDesc.getText().toString(), DetailNote.PLACEHOLDER);
             }
-            //добавить EventBus объявление что данные обновились
+            UpdateData upd = new UpdateData("addNote");
+            EventBus.getDefault().post(upd);
             finish();
         }
     }

@@ -64,4 +64,9 @@ public class NotesRecyclerAdapter extends RecyclerView.Adapter<NotesRecyclerAdap
         this.mItemClickListener = mItemClickListener;
     }
 
+    public void refreshData(Cursor cursor)
+    {
+        mCursor = cursor;
+    }
+
 }

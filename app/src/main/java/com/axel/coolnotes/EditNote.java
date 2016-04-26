@@ -16,6 +16,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -75,7 +77,6 @@ public class EditNote extends AppCompatActivity {
     }
 
     public void onImageViewClick(View view) {
-        Log.d(MainActivity.LOG_TAG, "we in onImageViewClick");
         Intent i = new Intent(Intent.ACTION_PICK);
         i.setType("image/*");
         startActivityForResult(i, REQUEST);
@@ -92,6 +93,8 @@ public class EditNote extends AppCompatActivity {
             {
                 DBHelper.updateNoteByID(this, mId, mTitleEdit.getText().toString(), mDescEdit.getText().toString(), DetailNote.PLACEHOLDER);
             }
+            UpdateData upd = new UpdateData("editNote");
+            EventBus.getDefault().post(upd);
             finish();
         }
     }
@@ -134,7 +137,9 @@ public class EditNote extends AppCompatActivity {
         }
         catch (Exception e)
         {
-            Toast.makeText(this, "Some problem " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Snackbar snackbar = Snackbar
+                    .make(mLayout, "Problem with loading image, try again", Snackbar.LENGTH_LONG);
+            snackbar.show();
             return e.getMessage();
         }
         return newPath;
@@ -144,7 +149,7 @@ public class EditNote extends AppCompatActivity {
         if (mTitleEdit.getText().length()==0)
         {
             Snackbar snackbar = Snackbar
-                    .make(mLayout, "Title cant be empty", Snackbar.LENGTH_LONG);
+                    .make(mLayout, "Title can't be empty", Snackbar.LENGTH_LONG);
             snackbar.show();
             return false;
         }else  {return true;}
